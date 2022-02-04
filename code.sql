@@ -200,3 +200,35 @@ FROM pizza
 -- 13) Liste todas as pizzas que não contém glúten.
 -- Informação: Considere que uma pizza não contém glúten quando nenhum dos
 -- seus ingredientes contém glúten.
+SELEC nome FROM pizza
+WHERE pizza.nome NOT IN 
+(
+    SELECT DISTINCT pizza.nome FROM pizza 
+    INNER JOIN pizza_ingrediente 
+    ON pizza.id_pizza = pizza_ingrediente.id_pizza 
+    INNER JOIN ingrediente 
+    ON ingrediente.id_ingrediente = pizza_ingrediente.id_ingrediente 
+    WHERE ingrediente.gluten = true
+)
+
+-- 14) O cardápio no aplicativo da pizzaria passará a ter 4 pizzas por página, sendo
+-- as páginas organizadas em ordem alfabética. Liste as pizzas da segunda
+-- página nesse aplicativo.
+-- Informação: A cláusula LIMIT permite determinar uma posição a partir da qual os
+-- resultados serão limitados utilizando a cláusula OFFSET.
+SELECT nome, preco FROM pizza
+ORDER BY nome
+LIMIT 4
+OFFSET 4
+
+-- 15) Escreva um (único) comando para aumentar o preço das pizzas que custem
+-- menos que R$30 em 30%, entre R$30 e R$35 em 20% e mais que R$35 em
+-- 10%.
+-- Informação: É possível utilizar o operador CASE para verificar diferentes
+-- condições para atualização de uma tabela em um único comando UPDATE.
+UPDATE pizza SET preco =
+CASE
+	WHEN preco < 30 THEN preco*1.3
+	WHEN preco >= 30 AND preco <= 35 THEN preco*1.2
+	WHEN preco > 35 THEN preco*1.1
+END
