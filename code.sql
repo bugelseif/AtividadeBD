@@ -232,3 +232,50 @@ CASE
 	WHEN preco >= 30 AND preco <= 35 THEN preco*1.2
 	WHEN preco > 35 THEN preco*1.1
 END
+
+-- 16) Liste os tipos de pizza acompanhado do nome da pizza mais barata de cada
+-- um dos tipos (Ex. Tradicional / Margherita).
+-- Informação: É possível utilizar a cláusula DISTINCT ON para agrupar os valores
+-- iguais de uma coluna da tabela resultante e mostrar o valor de outra coluna da
+-- primeira das linhas daquele grupo. Como por padrão os resultados do SQL não
+-- são ordenados, para definir qual é a primeira linha é preciso utilizar a cláusula
+-- ORDER BY.
+SELECT DISTINCT ON (tipo) tipo, pizza.nome
+FROM pizza
+INNER JOIN tipo
+ON pizza.id_tipo = tipo.id_tipo
+ORDER BY tipo, preco
+
+-- 17) Para cada um dos tipos de pizza mostre todas as pizzas ordenadas pelo
+-- preço (do mais barato para o mais caro) e em uma coluna adicional mostre
+-- qual é a posição do preço de cada pizza em seu grupo (ex. Se Calabresa é a
+-- segunda mais cara do tipo tradicional mostrar no resultado Calabresa /
+-- Tradicional / 2).
+-- Informação: É possível organizar os registros em grupos e utilizar funções sobre
+-- esse grupo, porém mostrando todas as linhas do grupo, ao utilizar Window
+-- Functions. Uma das possibilidades é mostrar a posição relativa de um valor no
+-- grupo utilizando a função RANK().
+SELECT  pizza.nome, tipo.tipo, RANK() OVER(
+	PARTITION BY tipo
+	ORDER BY preco
+) rank_preco
+FROM pizza
+INNER JOIN tipo
+ON tipo.id_tipo = pizza.id_tipo
+
+-- 18) Liste os tipos de pizza junto com o nome da pizza mais barata e o nome da
+-- pizza mais cara de cada um dos tipos (Ex. Tradicional / Margherita /
+-- Pepperoni).
+-- Informação: Outra possibilidade ao utilizar Window Functions é a de na cláusula
+-- SELECT mostrar o valor do primeiro (FIRST_VALUE) e do último (LAST_VALUE)
+-- registro do grupo em uma determinada coluna.
+SELECT tipo.tipo, pizza.nome,
+FIRST_VALUE(preco) OVER(
+	PARTITION BY tipo
+) barata,
+LAST_VALUE(preco) OVER(
+	PARTITION BY tipo
+)
+FROM pizza
+INNER JOIN tipo
+ON tipo.id_tipo = pizza.id_tipo
