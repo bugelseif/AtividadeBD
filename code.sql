@@ -191,9 +191,11 @@ AS Informação FROM pizza
 -- calorias for “null” mostre o texto “Sem informação”.
 -- Informação: É possível utilizar a expressão CASE WHEN na cláusula SELECT
 -- para realizar operações condicionais.
-SELECT nome || ' / ' || 
-CASE WHEN caloria IS NULL THEN 1 -- cast type
-ELSE caloria END || ' calorias'
+SELECT
+CASE
+	WHEN caloria IS NULL THEN nome || ' / sem informação de calorias'
+	WHEN caloria IS NOT NULL THEN nome || '  /  ' || caloria || ' calorias'
+END
 AS Informação
 FROM pizza
 
@@ -269,13 +271,14 @@ ON tipo.id_tipo = pizza.id_tipo
 -- Informação: Outra possibilidade ao utilizar Window Functions é a de na cláusula
 -- SELECT mostrar o valor do primeiro (FIRST_VALUE) e do último (LAST_VALUE)
 -- registro do grupo em uma determinada coluna.
-SELECT tipo.tipo, pizza.nome,
-FIRST_VALUE(preco) OVER(
+SELECT DISTINCT tipo.tipo,
+FIRST_VALUE(nome) OVER(
 	PARTITION BY tipo
 ) barata,
-LAST_VALUE(preco) OVER(
-	PARTITION BY tipo
-)
+LAST_VALUE(nome) OVER(
+ 	PARTITION BY tipo
+) cara
 FROM pizza
 INNER JOIN tipo
 ON tipo.id_tipo = pizza.id_tipo
+ORDER BY tipo
